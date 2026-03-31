@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arc | Clinical Supply Chain — Oak Avenue Pharma</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#020434;--pink:#E60F65;--lavender:#EDF0FA;--white:#FFFFFF;
+  --light-gray:#F4F5F9;--border:#D8DCE8;--text-dark:#1A1D3A;
+  --text-mid:#4A4F6B;--text-light:#8B91AA;
+  --success:#10B981;--warning:#F59E0B;--danger:#EF4444;--info:#3B82F6;
+  --sidebar-w:224px;
+}
+body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--lavender);color:var(--text-dark);min-height:100vh;font-size:14px;}
+
+/* BANNER */
+.at-risk-banner{background:var(--danger);color:#fff;padding:8px 24px;display:flex;align-items:center;justify-content:space-between;font-size:12.5px;font-weight:500;}
+.at-risk-banner.hidden{display:none;}
+.banner-link{color:#fff;text-decoration:underline;cursor:pointer;background:none;border:none;font-size:12.5px;font-weight:600;}
+.banner-close{cursor:pointer;font-size:18px;opacity:.7;padding:0 4px;background:none;border:none;color:#fff;}
+.banner-close:hover{opacity:1;}
+
+/* TOP NAV */
+.top-nav{background:var(--navy);height:52px;display:flex;align-items:center;padding:0 20px;gap:14px;position:sticky;top:0;z-index:100;}
+.nav-divider{width:1px;height:20px;background:rgba(255,255,255,.2);}
+.nav-module{color:rgba(255,255,255,.85);font-size:13.5px;font-weight:500;}
+.nav-client{color:var(--pink);font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-left:auto;}
+.role-switcher{position:relative;margin-left:14px;}
+.role-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#fff;padding:5px 11px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;user-select:none;}
+.role-btn:hover{background:rgba(255,255,255,.15);}
+.role-dropdown{position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid var(--border);border-radius:8px;min-width:200px;box-shadow:0 4px 20px rgba(0,0,0,.12);z-index:200;display:none;overflow:hidden;}
+.role-dropdown.open{display:block;}
+.role-option{padding:10px 14px;font-size:13px;cursor:pointer;color:var(--text-dark);border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:2px;}
+.role-option:last-child{border-bottom:none;}
+.role-option:hover{background:var(--lavender);}
+.role-option.active{background:#EDF0FA;}
+.role-option .rname{font-weight:600;font-size:13px;}
+.role-option .ruser{font-size:11px;color:var(--text-light);}
+.nav-user{display:flex;align-items:center;gap:8px;margin-left:10px;}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--pink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.nav-username{color:rgba(255,255,255,.85);font-size:12px;white-space:nowrap;}
+
+/* LAYOUT */
+.app-layout{display:flex;height:calc(100vh - 52px);overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);background:var(--navy);flex-shrink:0;display:flex;flex-direction:column;overflow-y:auto;padding:10px 0 20px;}
+.sb-section{color:rgba(255,255,255,.35);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:14px 16px 4px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 16px;color:rgba(255,255,255,.65);font-size:13px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;user-select:none;}
+.sb-item:hover{background:rgba(255,255,255,.06);color:#fff;}
+.sb-item.active{color:#fff;border-left-color:var(--pink);background:rgba(230,15,101,.12);}
+.sb-item.disabled{opacity:.4;cursor:not-allowed;}
+.sb-icon{font-size:15px;width:18px;text-align:center;}
+.sb-badge{margin-left:auto;background:var(--pink);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;}
+.sb-soon{margin-left:auto;font-size:10px;color:rgba(255,255,255,.3);}
+.sb-study-box{margin:12px 10px 0;background:rgba(255,255,255,.07);border-radius:6px;padding:10px 12px;}
+.sb-study-box .slabel{color:rgba(255,255,255,.45);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+.sb-study-box .sval{color:#fff;font-size:12px;font-weight:600;}
+.sb-study-box .smeta{color:rgba(255,255,255,.4);font-size:10px;margin-top:2px;}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.section{display:none;flex-direction:column;flex:1;}
+.section.active{display:flex;}
+
+/* PAGE HEADER */
+.page-header{background:#fff;border-bottom:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.page-title{font-size:17px;font-weight:700;color:var(--text-dark);}
+.page-subtitle{font-size:12px;color:var(--text-light);margin-top:2px;}
+.page-actions{display:flex;gap:10px;align-items:center;}
+
+/* CONTENT */
+.content-area{padding:24px 28px;flex:1;}
+
+/* CARDS */
+.card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:20px 22px;}
+.card-title{font-size:13.5px;font-weight:700;color:var(--text-dark);margin-bottom:2px;}
+.card-subtitle{font-size:12px;color:var(--text-light);margin-bottom:14px;}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px;}
+.kpi-tile{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px 18px;}
+.kpi-tile.alert-tile{border-left:3px solid var(--danger);}
+.kpi-tile.warn-tile{border-left:3px solid var(--warning);}
+.kpi-tile.good-tile{border-left:3px solid var(--success);}
+.kpi-tile.primary-tile{border-left:3px solid var(--pink);}
+.kpi-label{font-size:10.5px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;}
+.kpi-value{font-size:28px;font-weight:700;color:var(--text-dark);line-height:1;}
+.kpi-delta{font-size:11.5px;margin-top:5px;color:var(--text-light);}
+.kpi-delta.warn{color:var(--warning);}
+.kpi-delta.down{color:var(--danger);}
+.kpi-delta.up{color:var(--success);}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap;}
+.badge-success{background:#D1FAE5;color:#065F46;}
+.badge-warning{background:#FEF3C7;color:#92400E;}
+.badge-danger{background:#FEE2E2;color:#991B1B;}
+.badge-neutral{background:#F3F4F6;color:#4B5563;}
+.badge-info{background:#DBEAFE;color:#1E40AF;}
+.badge-pink{background:#FCE7F3;color:#9D174D;}
+
+/* BUTTONS */
+.btn{padding:8px 16px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap;user-select:none;}
+.btn-primary{background:var(--pink);color:#fff;}
+.btn-primary:hover{background:#c60d58;}
+.btn-secondary{background:#fff;color:var(--text-dark);border:1px solid var(--border);}
+.btn-secondary:hover{background:var(--light-gray);}
+.btn-navy{background:var(--navy);color:#fff;}
+.btn-navy:hover{background:#050850;}
+.btn-success{background:var(--success);color:#fff;}
+.btn-success:hover{background:#059669;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-danger:hover{background:#DC2626;}
+.btn-sm{padding:5px 11px;font-size:12px;}
+
+/* TABS */
+.tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:18px;}
+.tab-item{padding:9px 18px;font-size:13px;font-weight:500;color:var(--text-mid);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;}
+.tab-item:hover{color:var(--text-dark);}
+.tab-item.active{color:var(--pink);border-bottom-color:var(--pink);font-weight:600;}
+.tab-count{margin-left:5px;border-radius:10px;padding:1px 7px;font-size:11px;}
+
+/* FILTERS */
+.filters-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+.filter-select{padding:7px 12px;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text-dark);background:#fff;cursor:pointer;min-width:130px;}
+.filter-search{padding:7px 12px;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--text-dark);background:#fff;min-width:220px;outline:none;}
+.filter-search:focus{border-color:var(--pink);}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{text-align:left;padding:10px 14px;font-size:11px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;}
+thead th:hover{color:var(--text-dark);}
+tbody tr{border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;}
+tbody tr:hover{background:var(--lavender);}
+tbody td{padding:11px 14px;vertical-align:middle;}
+tbody tr:last-child{border-bottom:none;}
+
+/* STEP PROGRESS */
+.step-progress{display:flex;align-items:flex-start;margin:14px 0 4px;}
+.step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;}
+.step:not(:last-child)::after{content:'';position:absolute;top:13px;left:50%;width:100%;height:2px;background:var(--border);z-index:0;}
+.step:not(:last-child).done::after{background:var(--pink);}
+.step-dot{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;position:relative;z-index:1;}
+.step-dot.done{background:var(--pink);border-color:var(--pink);color:#fff;}
+.step-dot.current{background:#fff;border-color:var(--pink);color:var(--pink);}
+.step-label{font-size:10px;color:var(--text-light);margin-top:5px;text-align:center;font-weight:500;max-width:60px;}
+.step.done .step-label{color:var(--pink);}
+.step.current .step-label{color:var(--text-dark);font-weight:600;}
+
+/* SIDE PANEL */
+.side-panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:300;display:none;}
+.side-panel-overlay.open{display:block;}
+.side-panel{position:fixed;top:0;right:-620px;width:600px;height:100vh;background:#fff;box-shadow:-4px 0 30px rgba(0,0,0,.15);z-index:400;transition:right .25s ease;display:flex;flex-direction:column;overflow:hidden;}
+.side-panel.open{right:0;}
+.panel-header{background:var(--navy);color:#fff;padding:18px 22px;display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;}
+.panel-title{font-size:16px;font-weight:700;}
+.panel-subtitle{font-size:12px;opacity:.7;margin-top:2px;}
+.panel-close{color:#fff;opacity:.7;cursor:pointer;font-size:20px;line-height:1;padding:0 4px;background:none;border:none;}
+.panel-close:hover{opacity:1;}
+.panel-body{flex:1;overflow-y:auto;padding:22px;}
+.panel-footer{border-top:1px solid var(--border);padding:14px 22px;display:flex;gap:10px;background:var(--light-gray);flex-shrink:0;}
+
+/* DETAIL GRID */
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;}
+.detail-field label{font-size:10.5px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px;}
+.detail-field .fval{font-size:13px;color:var(--text-dark);font-weight:500;}
+
+/* AUDIT */
+.audit-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.audit-item:last-child{border-bottom:none;}
+.audit-dot{width:8px;height:8px;border-radius:50%;background:var(--pink);flex-shrink:0;margin-top:5px;}
+.audit-action{font-size:13px;color:var(--text-dark);font-weight:500;}
+.audit-meta{font-size:11px;color:var(--text-light);margin-top:2px;}
+
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:10px;width:500px;max-width:96vw;box-shadow:0 8px 40px rgba(0,0,0,.2);overflow:hidden;}
+.modal-header{background:var(--navy);color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;}
+.modal-title{font-size:14.5px;font-weight:700;}
+.modal-close{color:#fff;opacity:.7;cursor:pointer;font-size:18px;background:none;border:none;}
+.modal-close:hover{opacity:1;}
+.modal-body{padding:20px;}
+.modal-footer{padding:13px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;background:var(--light-gray);}
+
+/* FORMS */
+.form-group{margin-bottom:13px;}
+.form-label{font-size:12px;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px;}
+.req{color:var(--pink);}
+.form-control{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:6px;font-size:13px;color:var(--text-dark);outline:none;background:#fff;font-family:inherit;}
+.form-control:focus{border-color:var(--pink);}
+textarea.form-control{resize:vertical;min-height:72px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+/* E-SIG */
+.esig-warning{background:#FEF3C7;border:1px solid #F59E0B;border-radius:6px;padding:10px 14px;font-size:12px;color:#92400E;margin-bottom:15px;}
+.pin-input{letter-spacing:4px;font-size:18px;text-align:center;font-weight:700;}
+
+/* PRIORITY */
+.pdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;}
+.pdot.at-risk{background:var(--danger);}
+.pdot.urgent{background:var(--warning);}
+.pdot.normal{background:var(--success);}
+
+/* CAL STRIP */
+.cal-strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-top:12px;}
+.cal-day{flex-shrink:0;width:62px;background:var(--light-gray);border-radius:8px;padding:8px 6px;text-align:center;border:1px solid var(--border);}
+.cal-day.has-event{background:#FCE7F3;border-color:var(--pink);}
+.cal-day.today{border:2px solid var(--navy);}
+.cal-dlabel{font-size:10px;color:var(--text-light);font-weight:600;text-transform:uppercase;}
+.cal-dnum{font-size:18px;font-weight:700;color:var(--text-dark);line-height:1.2;}
+.cal-devent{font-size:10px;color:var(--pink);font-weight:600;}
+
+/* COMING SOON */
+.coming-soon-wrap{flex:1;display:flex;align-items:center;justify-content:center;}
+.coming-soon-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:60px 40px;text-align:center;max-width:400px;}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;box-shadow:0 4px 20px rgba(0,0,0,.2);z-index:1000;display:none;max-width:340px;line-height:1.4;}
+
+/* ACTIVITY */
+.activity-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.activity-item:last-child{border-bottom:none;}
+.activity-icon{font-size:16px;width:24px;text-align:center;flex-shrink:0;margin-top:1px;}
+.activity-text{flex:1;font-size:13px;color:var(--text-dark);}
+.activity-time{font-size:11px;color:var(--text-light);white-space:nowrap;flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<!-- AT-RISK BANNER -->
+<div class="at-risk-banner" id="atRiskBanner">
+  <div style="display:flex;align-items:center;gap:8px;">
+    <span>⚠</span>
+    <span><strong>2 patients flagged at-risk:</strong> Patient F. Baggins (OAP-PT-041) — dose window closes Apr 2 &nbsp;·&nbsp; Patient K. Everdeen (OAP-PT-047) — apheresis results pending &nbsp;
+      <button class="banner-link" onclick="navTo('sarf');setSarfTabById('at-risk');">View At-Risk SARFs →</button>
+    </span>
+  </div>
+  <button class="banner-close" onclick="dismissBanner()">✕</button>
+</div>
+
+<!-- TOP NAV -->
+<nav class="top-nav">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <svg width="88" height="22" viewBox="0 0 88 22"><text x="0" y="17" font-family="system-ui,sans-serif" font-weight="700" font-size="15" fill="#FFFFFF" letter-spacing="1">BEGHOU</text></svg>
+    <div class="nav-divider"></div>
+    <span class="nav-module">Arc &nbsp;|&nbsp; Clinical Supply Chain</span>
+  </div>
+  <span class="nav-client">Oak Avenue Pharma</span>
+  <div class="role-switcher">
+    <div class="role-btn" id="roleBtnEl" onclick="toggleRoleDD()">
+      <span>👤</span><span id="roleBtnLabel">Clinical Operations</span><span>▾</span>
+    </div>
+    <div class="role-dropdown" id="roleDD"></div>
+  </div>
+  <div class="nav-user">
+    <div class="avatar" id="navAvatar">SM</div>
+    <span class="nav-username" id="navUsername">Sarah Mitchell</span>
+  </div>
+</nav>
+
+<!-- APP -->
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main" id="mainContent">
+
+    <!-- DASHBOARD -->
+    <div class="section active" id="section-dashboard"></div>
+
+    <!-- SARF -->
+    <div class="section" id="section-sarf"></div>
+
+    <!-- DOSE ORDERS -->
+    <div class="section" id="section-dose-orders"></div>
+
+    <!-- BATCH PLANNING coming soon -->
+    <div class="section" id="section-batch-planning">
+      <div class="page-header"><div><div class="page-title">Batch Planning</div><div class="page-subtitle">MARK AI allocation, radioisotope planning, inventory sandbox</div></div></div>
+      <div class="content-area coming-soon-wrap">
+        <div class="coming-soon-card">
+          <div style="font-size:48px;margin-bottom:16px;">🧬</div>
+          <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Batch Planning + MARK AI</div>
+          <div style="color:var(--text-light);font-size:13px;line-height:1.6;">Human-in-the-loop allocation recommendations, batch creation, and radioisotope planning. Coming in Sprint 3.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHIPMENTS coming soon -->
+    <div class="section" id="section-shipments">
+      <div class="page-header"><div><div class="page-title">Shipments & Chain of Custody</div><div class="page-subtitle">Shipment creation, temperature logs, and receipt confirmation</div></div></div>
+      <div class="content-area coming-soon-wrap">
+        <div class="coming-soon-card">
+          <div style="font-size:48px;margin-bottom:16px;">🚚</div>
+          <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Shipments & Chain of Custody</div>
+          <div style="color:var(--text-light);font-size:13px;line-height:1.6;">End-to-end shipment tracking, temperature log recording, and receipt confirmation by Clinic Site. Coming in Sprint 4.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QC coming soon -->
+    <div class="section" id="section-qc">
+      <div class="page-header"><div><div class="page-title">Quality Control</div><div class="page-subtitle">CoA review, e-signature approvals, quality status management</div></div></div>
+      <div class="content-area coming-soon-wrap">
+        <div class="coming-soon-card">
+          <div style="font-size:48px;margin-bottom:16px;">✅</div>
+          <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Quality Control</div>
+          <div style="color:var(--text-light);font-size:13px;line-height:1.6;">CoA uploads, 21 CFR Part 11 e-signature approvals, and quality status management. Coming in Sprint 4.</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- SARF SIDE PANEL -->
+<div class="side-panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
+<div class="side-panel" id="sarfPanel">
+  <div class="panel-header">
+    <div>
+      <div class="panel-title" id="panelTitle">SARF-2025-0041</div>
+      <div class="panel-subtitle" id="panelSubtitle">Patient F. Baggins · OAP-NGT-001</div>
+    </div>
+    <button class="panel-close" onclick="closePanel()">✕</button>
+  </div>
+  <div class="panel-body" id="panelBody"></div>
+  <div class="panel-footer" id="panelFooter"></div>
+</div>
+
+<!-- DOSE ORDER SIDE PANEL -->
+<div class="side-panel-overlay" id="doPanelOverlay" onclick="closeDOPanel()"></div>
+<div class="side-panel" id="doPanel">
+  <div class="panel-header">
+    <div>
+      <div class="panel-title" id="doPanelTitle">DO-2025-0088</div>
+      <div class="panel-subtitle" id="doPanelSubtitle">Patient H. Granger · OAP-NGT-001</div>
+    </div>
+    <button class="panel-close" onclick="closeDOPanel()">✕</button>
+  </div>
+  <div class="panel-body" id="doPanelBody"></div>
+  <div class="panel-footer" id="doPanelFooter"></div>
+</div>
+
+<!-- NEW DOSE ORDER MODAL -->
+<div class="modal-overlay" id="newDOModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">New Dose Order — Oak Avenue Pharma</span>
+      <button class="modal-close" onclick="closeNewDO()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--lavender);border-radius:6px;padding:10px 14px;font-size:12.5px;color:var(--text-mid);margin-bottom:14px;">
+        ℹ Dose orders can only be created for <strong>Approved SARFs</strong>. Select a SARF below to auto-populate patient details.
+      </div>
+      <div class="form-group">
+        <label class="form-label">Linked SARF <span class="req">*</span></label>
+        <select class="form-control" id="newDOSarfSelect" onchange="onDOSarfChange()">
+          <option value="">— Select Approved SARF —</option>
+        </select>
+      </div>
+      <div id="newDOPatientPreview" style="display:none;background:var(--light-gray);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12.5px;color:var(--text-mid);"></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Product <span class="req">*</span></label>
+          <select class="form-control"><option>NGT-001 Radiopharmaceutical</option><option>NGT-002 Radiopharmaceutical</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Requested Dose (mCi) <span class="req">*</span></label>
+          <input type="number" class="form-control" id="newDODose" placeholder="mCi" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Target Infusion Date <span class="req">*</span></label>
+          <input type="date" class="form-control" id="newDODate" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Infusion Time <span class="req">*</span></label>
+          <input type="time" class="form-control" id="newDOTime" value="09:00" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Special Instructions</label>
+        <textarea class="form-control" placeholder="Delivery requirements, cold-chain notes, site contact…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="btn btn-secondary btn-sm" onclick="closeNewDO()">Cancel</div>
+      <div class="btn btn-navy btn-sm" onclick="doSaveDODraft()">Save as Draft</div>
+      <div class="btn btn-primary btn-sm" onclick="doSubmitDO()">Submit for Approval</div>
+    </div>
+  </div>
+</div>
+
+<!-- NEW SARF MODAL -->
+<div class="modal-overlay" id="newSarfModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">New SARF — Oak Avenue Pharma</span>
+      <button class="modal-close" onclick="closeNewSarf()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Study <span class="req">*</span></label>
+          <select class="form-control"><option>OAP-NGT-001</option><option>OAP-NGT-002</option><option>OAP-NGT-003</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Site <span class="req">*</span></label>
+          <select class="form-control"><option>UCSF Medical Center</option><option>Mayo Clinic Rochester</option><option>MD Anderson</option><option>Johns Hopkins</option><option>Cleveland Clinic</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Patient ID <span class="req">*</span></label>
+          <input type="text" class="form-control" placeholder="OAP-PT-0XX" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Patient Initials <span class="req">*</span></label>
+          <input type="text" class="form-control" placeholder="e.g. J.D." />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Weight (kg) <span class="req">*</span></label>
+          <input type="number" class="form-control" placeholder="kg" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Infusion Date <span class="req">*</span></label>
+          <input type="date" class="form-control" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <select class="form-control"><option>Normal</option><option>Urgent</option><option>At-Risk</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Referring Physician</label>
+          <input type="text" class="form-control" placeholder="Name" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Clinical Rationale / Notes</label>
+        <textarea class="form-control" placeholder="Eligibility notes, clinical context, special considerations…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="btn btn-secondary btn-sm" onclick="closeNewSarf()">Cancel</div>
+      <div class="btn btn-navy btn-sm" onclick="doSaveDraft()">Save as Draft</div>
+      <div class="btn btn-primary btn-sm" onclick="doSubmitNewSarf()">Submit for Review</div>
+    </div>
+  </div>
+</div>
+
+<!-- E-SIGNATURE MODAL -->
+<div class="modal-overlay" id="esigModal">
+  <div class="modal">
+    <div class="modal-header" id="esigHeader">
+      <span class="modal-title" id="esigModalTitle">Electronic Signature</span>
+      <button class="modal-close" onclick="closeEsig()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="esig-warning">⚠ This action creates a 21 CFR Part 11-compliant electronic signature record. This entry is tamper-evident and cannot be undone.</div>
+      <div style="background:var(--lavender);border-radius:6px;padding:10px 14px;font-size:12.5px;color:var(--text-mid);margin-bottom:15px;line-height:1.7;">
+        Signing as: <strong id="esigSigner">Sarah Mitchell</strong><br>
+        Action: <strong id="esigAction">Approve</strong> &nbsp;·&nbsp; SARF: <strong id="esigTargetId">—</strong><br>
+        Timestamp: <strong id="esigTimestamp">—</strong> UTC
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reason / Comment <span class="req">*</span></label>
+        <textarea class="form-control" id="esigReason" placeholder="Enter reason for this action…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">PIN / Password <span class="req">*</span></label>
+        <input type="password" class="form-control pin-input" id="esigPin" placeholder="••••••" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="btn btn-secondary btn-sm" onclick="closeEsig()">Cancel</div>
+      <div class="btn btn-sm" id="esigConfirmBtn" onclick="confirmEsig()">Confirm &amp; Sign</div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────
+var SARFS = [
+  {id:'SARF-2025-0041',patient:'Patient F. Baggins',pid:'OAP-PT-041',site:'UCSF Medical Center',study:'OAP-NGT-001',status:'Under Review',priority:'at-risk',submitted:'Mar 18, 2025',infusion:'Apr 2, 2025',assignedTo:'Sarah Mitchell',weight:68,bsa:1.74,notes:'Patient flagged at-risk due to narrow dosing window. Expedited review requested by PI. Dose window closes Apr 2.'},
+  {id:'SARF-2025-0042',patient:'Patient A. Stark',pid:'OAP-PT-042',site:'Mayo Clinic Rochester',study:'OAP-NGT-001',status:'Submitted',priority:'urgent',submitted:'Mar 20, 2025',infusion:'Apr 5, 2025',assignedTo:'Unassigned',weight:55,bsa:1.58,notes:'Urgent submission per site PI. Patient has compressed scheduling window due to travel constraints.'},
+  {id:'SARF-2025-0043',patient:'Patient H. Granger',pid:'OAP-PT-043',site:'MD Anderson',study:'OAP-NGT-001',status:'Approved',priority:'normal',submitted:'Mar 10, 2025',infusion:'Mar 28, 2025',assignedTo:'Sarah Mitchell',weight:62,bsa:1.65,notes:'Standard submission. All eligibility criteria confirmed by PI.'},
+  {id:'SARF-2025-0044',patient:'Patient L. Skywalker',pid:'OAP-PT-044',site:'Johns Hopkins',study:'OAP-NGT-001',status:'Draft',priority:'normal',submitted:'—',infusion:'Apr 14, 2025',assignedTo:'—',weight:80,bsa:1.97,notes:''},
+  {id:'SARF-2025-0045',patient:'Patient D. Targaryen',pid:'OAP-PT-045',site:'UCSF Medical Center',study:'OAP-NGT-001',status:'Under Review',priority:'normal',submitted:'Mar 22, 2025',infusion:'Apr 10, 2025',assignedTo:'Sarah Mitchell',weight:57,bsa:1.61,notes:'Routine review. Site confirmed eligibility screening complete.'},
+  {id:'SARF-2025-0046',patient:'Patient T. Stark',pid:'OAP-PT-046',site:'Mayo Clinic Rochester',study:'OAP-NGT-002',status:'Rejected',priority:'normal',submitted:'Mar 8, 2025',infusion:'—',assignedTo:'Sarah Mitchell',weight:85,bsa:2.02,notes:'Rejected — eligibility criterion 3.2 not met (recent immunosuppressive therapy). Resubmission eligible in 30 days.'},
+  {id:'SARF-2025-0047',patient:'Patient K. Everdeen',pid:'OAP-PT-047',site:'MD Anderson',study:'OAP-NGT-001',status:'Submitted',priority:'at-risk',submitted:'Mar 24, 2025',infusion:'Apr 8, 2025',assignedTo:'Unassigned',weight:61,bsa:1.63,notes:'Apheresis lab results still pending from external lab. Site requesting provisional review to hold infusion slot.'},
+  {id:'SARF-2025-0048',patient:'Patient B. Baggins',pid:'OAP-PT-048',site:'Cleveland Clinic',study:'OAP-NGT-001',status:'Approved',priority:'normal',submitted:'Mar 5, 2025',infusion:'Mar 25, 2025',assignedTo:'Sarah Mitchell',weight:72,bsa:1.82,notes:'Approved. Dose order submitted separately.'}
+];
+
+var AUDIT = {
+  'SARF-2025-0041':[
+    {action:'Flagged At-Risk by MARK AI',user:'System (MARK AI)',ts:'Mar 25, 2025 · 09:14 UTC',note:'Dose window narrows to 5 days'},
+    {action:'Assigned to Sarah Mitchell',user:'Sarah Mitchell',ts:'Mar 19, 2025 · 14:02 UTC',note:''},
+    {action:'Status: Submitted → Under Review',user:'Sarah Mitchell',ts:'Mar 19, 2025 · 14:01 UTC',note:''},
+    {action:'SARF Submitted',user:'Dr. James Park (UCSF)',ts:'Mar 18, 2025 · 10:33 UTC',note:''},
+    {action:'SARF Created (Draft)',user:'Dr. James Park (UCSF)',ts:'Mar 17, 2025 · 16:55 UTC',note:''}
+  ],
+  'SARF-2025-0042':[
+    {action:'SARF Submitted',user:'Dr. Ana Torres (Mayo)',ts:'Mar 20, 2025 · 08:11 UTC',note:''},
+    {action:'SARF Created (Draft)',user:'Dr. Ana Torres (Mayo)',ts:'Mar 19, 2025 · 17:00 UTC',note:''}
+  ],
+  'SARF-2025-0043':[
+    {action:'SARF Approved (e-signature)',user:'Sarah Mitchell',ts:'Mar 14, 2025 · 11:45 UTC',note:'All criteria met — dose order authorized'},
+    {action:'Status: Under Review → Approved',user:'Sarah Mitchell',ts:'Mar 14, 2025 · 11:44 UTC',note:''},
+    {action:'SARF Submitted',user:'MD Anderson Site Coordinator',ts:'Mar 10, 2025 · 09:22 UTC',note:''},
+    {action:'SARF Created (Draft)',user:'MD Anderson Site Coordinator',ts:'Mar 9, 2025 · 15:48 UTC',note:''}
+  ],
+  'SARF-2025-0047':[
+    {action:'SARF Submitted',user:'Dr. Lena Rhodes (MD Anderson)',ts:'Mar 24, 2025 · 11:20 UTC',note:'Lab results still pending'},
+    {action:'SARF Created (Draft)',user:'Dr. Lena Rhodes (MD Anderson)',ts:'Mar 23, 2025 · 16:40 UTC',note:''}
+  ]
+};
+
+// ─── ROLES ───────────────────────────────────────────────────
+var ROLES = [
+  {id:'clinops',label:'Clinical Operations',user:'Sarah Mitchell',initials:'SM',siteFilter:null,
+   kpis:[
+     {label:'SARFs Pending Review',value:'7',delta:'2 urgent',dc:'warn'},
+     {label:'Dose Orders Pending',value:'12',delta:'+3 since yesterday',dc:'warn'},
+     {label:'At-Risk Patients',value:'2',delta:'Action required',dc:'down',tc:'alert-tile'},
+     {label:'Active Studies',value:'3',delta:'NGT-001 / 002 / 003',dc:''}
+   ]},
+  {id:'site',label:'Clinic Site (UCSF)',user:'Dr. James Park',initials:'JP',siteFilter:'UCSF Medical Center',
+   kpis:[
+     {label:'My Open SARFs',value:'3',delta:'1 at-risk',dc:'warn'},
+     {label:'Pending Dose Orders',value:'4',delta:'Next: Apr 2',dc:''},
+     {label:'Enrolled Patients',value:'8',delta:'2 in active treatment',dc:'up'},
+     {label:'Next Infusion',value:'Apr 2',delta:'Patient F. Baggins',dc:'',tc:'primary-tile'}
+   ]},
+  {id:'planning',label:'Planning',user:'Ana Reyes',initials:'AR',siteFilter:null,
+   kpis:[
+     {label:'Batches Scheduled (7d)',value:'5',delta:'2 NGT-001, 3 NGT-002',dc:''},
+     {label:'MARK Allocations Pending',value:'3',delta:'1 requires confirmation',dc:'warn'},
+     {label:'Inventory Units Available',value:'24',delta:'+6 arriving Apr 3',dc:'up'},
+     {label:'At-Risk Batches',value:'1',delta:'OAP-B-0023 — review',dc:'down',tc:'warn-tile'}
+   ]},
+  {id:'logistics',label:'Logistics',user:'Priya Nair',initials:'PN',siteFilter:null,
+   kpis:[
+     {label:'Active Shipments',value:'8',delta:'3 in transit',dc:''},
+     {label:'Delayed Shipments',value:'1',delta:'Cold chain alert',dc:'down',tc:'alert-tile'},
+     {label:'Upcoming Deliveries (7d)',value:'5',delta:'Next: Apr 1',dc:''},
+     {label:'Shipping Holidays',value:'0',delta:'None in next 14 days',dc:'up'}
+   ]},
+  {id:'quality',label:'Quality',user:'David Chen',initials:'DC',siteFilter:null,
+   kpis:[
+     {label:'CoA Reviews Pending',value:'4',delta:'2 due today',dc:'warn'},
+     {label:'E-Signatures Required',value:'6',delta:'3 SARF, 3 QC',dc:'warn'},
+     {label:'Quality Holds',value:'1',delta:'Batch OAP-B-0023',dc:'down',tc:'alert-tile'},
+     {label:'Next Audit',value:'May 2025',delta:'Internal inspection',dc:''}
+   ]},
+  {id:'admin',label:'Admin',user:'Meredith Blake',initials:'MB',siteFilter:null,
+   kpis:[
+     {label:'Active Users',value:'34',delta:'+2 this month',dc:'up'},
+     {label:'Role Archetypes',value:'9',delta:'Last modified: Mar 20',dc:''},
+     {label:'Open Access Requests',value:'2',delta:'Pending approval',dc:'warn'},
+     {label:'System Environments',value:'5',delta:'STAGING·TEST·UAT·PRE-PROD·PROD',dc:''}
+   ]}
+];
+
+var NAV_ITEMS = [
+  {id:'dashboard',label:'Dashboard',icon:'🏠'},
+  {id:'sarf',label:'SARF',icon:'📋',badge:true},
+  {id:'dose-orders',label:'Dose Orders',icon:'💊',dobadge:true},
+  {id:'batch-planning',label:'Batch Planning',icon:'🧬',soon:true},
+  {id:'shipments',label:'Shipments',icon:'🚚',soon:true},
+  {id:'qc',label:'Quality Control',icon:'✅',soon:true}
+];
+
+// ─── STATE ───────────────────────────────────────────────────
+var role = ROLES[0];
+var curSection = 'dashboard';
+var curSarf = null;
+var esigActionType = null;
+var esigSarfId = null;
+var sarfTabActive = 'all';
+var localSarfs = SARFS.slice();
+
+// ─── INIT ────────────────────────────────────────────────────
+function init(){
+  renderRoleDD();
+  renderSidebar();
+  renderDashboard();
+  renderSarfSection();
+  renderDoseOrdersSection();
+}
+
+// ─── ROLE SWITCHER ───────────────────────────────────────────
+function renderRoleDD(){
+  var dd = document.getElementById('roleDD');
+  dd.innerHTML = ROLES.map(function(r){
+    return '<div class="role-option'+(r.id===role.id?' active':'')+'" onclick="switchRole(\''+r.id+'\')">'+
+      '<span class="rname">'+r.label+'</span>'+
+      '<span class="ruser">'+r.user+'</span>'+
+      '</div>';
+  }).join('');
+}
+function toggleRoleDD(){
+  document.getElementById('roleDD').classList.toggle('open');
+}
+function switchRole(rid){
+  role = ROLES.filter(function(r){return r.id===rid;})[0];
+  document.getElementById('roleBtnLabel').textContent = role.label;
+  document.getElementById('navUsername').textContent = role.user;
+  document.getElementById('navAvatar').textContent = role.initials;
+  document.getElementById('roleDD').classList.remove('open');
+  renderRoleDD();
+  renderSidebar();
+  renderDashboard();
+  renderSarfSection();
+  renderDoseOrdersSection();
+  navTo(curSection);
+}
+document.addEventListener('click',function(e){
+  var rs = document.querySelector('.role-switcher');
+  if(rs && !rs.contains(e.target)) document.getElementById('roleDD').classList.remove('open');
+});
+
+// ─── NAV ─────────────────────────────────────────────────────
+function navTo(sid){
+  curSection = sid;
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+  var t = document.getElementById('section-'+sid);
+  if(t) t.classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(function(i){
+    i.classList.toggle('active', i.getAttribute('data-id')===sid);
+  });
+}
+
+// ─── SIDEBAR ─────────────────────────────────────────────────
+function renderSidebar(){
+  var pending = localSarfs.filter(function(s){return s.status==='Submitted'||s.status==='Under Review';}).length;
+  var doPending = DOSE_ORDERS.filter(function(d){return d.status==='Submitted';}).length;
+  var html = '<div class="sb-section">Navigation</div>';
+  NAV_ITEMS.forEach(function(item){
+    var badge = '';
+    if(item.badge && pending>0) badge='<span class="sb-badge">'+pending+'</span>';
+    if(item.dobadge && doPending>0) badge='<span class="sb-badge">'+doPending+'</span>';
+    if(item.soon) badge='<span class="sb-soon">Soon</span>';
+    html+='<div class="sb-item'+(item.id===curSection?' active':'')+
+      (item.soon?' disabled':'')+'" data-id="'+item.id+
+      '" onclick="'+(item.soon?'':("navTo('"+item.id+"')"))+'">';
+    html+='<span class="sb-icon">'+item.icon+'</span><span>'+item.label+'</span>'+badge+'</div>';
+  });
+  html+='<div style="flex:1;"></div>'+
+    '<div class="sb-section">Active Study</div>'+
+    '<div style="padding:0 10px 10px;">'+
+    '<div class="sb-study-box">'+
+    '<div class="slabel">Study</div>'+
+    '<div class="sval">OAP-NGT-001</div>'+
+    '<div class="smeta">Phase II · 5 Sites · 8 Enrolled</div>'+
+    '</div></div>';
+  document.getElementById('sidebar').innerHTML = html;
+}
+
+// ─── DASHBOARD ───────────────────────────────────────────────
+function renderDashboard(){
+  var sec = document.getElementById('section-dashboard');
+  var kpiHtml = role.kpis.map(function(k){
+    return '<div class="kpi-tile'+(k.tc?' '+k.tc:'')+'">'+
+      '<div class="kpi-label">'+k.label+'</div>'+
+      '<div class="kpi-value">'+k.value+'</div>'+
+      (k.delta?'<div class="kpi-delta'+(k.dc?' '+k.dc:'')+'">'+k.delta+'</div>':'')+
+      '</div>';
+  }).join('');
+
+  // Calendar strip (Mar 26 – Apr 1 demo date)
+  var wdays=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var calHtml='';
+  for(var i=0;i<7;i++){
+    var d=new Date(2025,2,26+i);
+    var isEvent=(d.getDate()===28&&d.getMonth()===2)||(d.getDate()===2&&d.getMonth()===3);
+    calHtml+='<div class="cal-day'+(isEvent?' has-event':'')+
+      (i===0?' today':'')+'">'+
+      '<div class="cal-dlabel">'+wdays[d.getDay()]+'</div>'+
+      '<div class="cal-dnum">'+d.getDate()+'</div>'+
+      (isEvent?'<div class="cal-devent">1 dose</div>':'<div class="cal-devent" style="color:transparent">·</div>')+
+      '</div>';
+  }
+
+  var statuses=[
+    {l:'Approved',c:2,col:'#10B981'},
+    {l:'Under Review',c:2,col:'#3B82F6'},
+    {l:'Submitted',c:2,col:'#F59E0B'},
+    {l:'Draft',c:1,col:'#8B91AA'},
+    {l:'Rejected',c:1,col:'#EF4444'}
+  ];
+  var statusHtml=statuses.map(function(s){
+    return '<div style="flex:1;min-width:72px;background:var(--light-gray);border-radius:8px;padding:10px 8px;text-align:center;border-top:3px solid '+s.col+'">'+
+      '<div style="font-size:22px;font-weight:700;color:'+s.col+'">'+s.c+'</div>'+
+      '<div style="font-size:10.5px;color:var(--text-light);margin-top:2px;font-weight:600">'+s.l+'</div>'+
+      '</div>';
+  }).join('');
+
+  var activity=[
+    {icon:'📋',text:'SARF-2025-0047 submitted — Patient K. Everdeen (MD Anderson)',time:'2h ago'},
+    {icon:'⚠️',text:'Patient F. Baggins flagged at-risk by MARK AI — dose window Apr 2',time:'4h ago'},
+    {icon:'✅',text:'SARF-2025-0043 approved · Patient H. Granger · Sarah Mitchell',time:'Mar 14'},
+    {icon:'📦',text:'Batch OAP-B-0024 scheduled for Apr 1 — radioisotope confirmed',time:'Mar 13'},
+    {icon:'🚚',text:'Shipment SHP-0089 departed FedEx for UCSF Medical Center',time:'Mar 12'}
+  ];
+  var actHtml=activity.map(function(a){
+    return '<div class="activity-item">'+
+      '<div class="activity-icon">'+a.icon+'</div>'+
+      '<div class="activity-text">'+a.text+'</div>'+
+      '<div class="activity-time">'+a.time+'</div>'+
+      '</div>';
+  }).join('');
+
+  sec.innerHTML=
+    '<div class="page-header">'+
+      '<div><div class="page-title">'+role.label+' Dashboard</div>'+
+      '<div class="page-subtitle">'+role.user+' &nbsp;·&nbsp; Oak Avenue Pharma &nbsp;·&nbsp; OAP-NGT-001</div></div>'+
+      '<div class="page-actions"><div class="btn btn-secondary btn-sm" onclick="renderDashboard()">↻ Refresh</div></div>'+
+    '</div>'+
+    '<div class="content-area">'+
+      '<div class="kpi-grid">'+kpiHtml+'</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:22px;">'+
+        '<div class="card">'+
+          '<div class="card-title">📅 Upcoming Infusions</div>'+
+          '<div class="card-subtitle">Next 7 days · All Sites</div>'+
+          '<div class="cal-strip">'+calHtml+'</div>'+
+        '</div>'+
+        '<div class="card">'+
+          '<div class="card-title">📋 SARF Status Overview</div>'+
+          '<div class="card-subtitle">Current cycle · All Studies</div>'+
+          '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">'+statusHtml+'</div>'+
+          '<div class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;" onclick="navTo(\'sarf\')">View All SARFs →</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="card">'+
+        '<div class="card-title">🕐 Recent Activity</div>'+
+        '<div class="card-subtitle">All workflows &nbsp;·&nbsp; Last 7 days</div>'+
+        '<div style="margin-top:4px;">'+actHtml+'</div>'+
+      '</div>'+
+    '</div>';
+}
+
+// ─── SARF SECTION ────────────────────────────────────────────
+function renderSarfSection(){
+  var sec = document.getElementById('section-sarf');
+  var canCreate = (role.id==='site');
+  var visible = getVisibleSarfs();
+  var pending = visible.filter(function(s){return s.status==='Submitted'||s.status==='Under Review';}).length;
+  var atRisk  = visible.filter(function(s){return s.priority==='at-risk';}).length;
+  var approved= visible.filter(function(s){return s.status==='Approved';}).length;
+
+  var statusOpts=['All','Draft','Submitted','Under Review','Approved','Rejected'];
+  var siteOpts=['All'].concat([...new Set(SARFS.map(function(s){return s.site;}))]);
+
+  sec.innerHTML=
+    '<div class="page-header">'+
+      '<div><div class="page-title">SARF — Site Authorization Request Forms</div>'+
+      '<div class="page-subtitle">'+visible.length+' records visible &nbsp;·&nbsp; '+role.label+' view</div></div>'+
+      '<div class="page-actions">'+
+        (canCreate?'<div class="btn btn-primary btn-sm" onclick="openNewSarf()">+ New SARF</div>':'')+
+        '<div class="btn btn-secondary btn-sm">↓ Export</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="content-area" style="overflow-y:auto;flex:1;">'+
+      '<div class="tabs">'+
+        '<div class="tab-item active" data-tab="all" onclick="setSarfTab(this,\'all\')">All &nbsp;<span class="tab-count" style="background:var(--border);">'+visible.length+'</span></div>'+
+        '<div class="tab-item" data-tab="pending" onclick="setSarfTab(this,\'pending\')">Pending Review &nbsp;<span class="tab-count" style="background:#FEF3C7;color:#92400E;">'+pending+'</span></div>'+
+        '<div class="tab-item" data-tab="at-risk" onclick="setSarfTab(this,\'at-risk\')">At-Risk &nbsp;<span class="tab-count" style="background:#FEE2E2;color:#991B1B;">'+atRisk+'</span></div>'+
+        '<div class="tab-item" data-tab="approved" onclick="setSarfTab(this,\'approved\')">Approved &nbsp;<span class="tab-count" style="background:#D1FAE5;color:#065F46;">'+approved+'</span></div>'+
+      '</div>'+
+      '<div class="filters-row">'+
+        '<input class="filter-search" id="sarfSearch" placeholder="🔍  Search patient, SARF ID, site…" oninput="applySarfFilters()" />'+
+        '<select class="filter-select" id="sarfStatusF" onchange="applySarfFilters()">'+
+          statusOpts.map(function(s){return '<option>'+s+'</option>';}).join('')+
+        '</select>'+
+        '<select class="filter-select" id="sarfSiteF" onchange="applySarfFilters()">'+
+          siteOpts.map(function(s){return '<option>'+s+'</option>';}).join('')+
+        '</select>'+
+      '</div>'+
+      '<div class="card" style="padding:0;overflow:hidden;">'+
+        '<div class="table-wrap">'+
+          '<table><thead><tr>'+
+            '<th>SARF ID</th><th>Patient</th><th>Site</th><th>Study</th>'+
+            '<th>Status</th><th>Priority</th><th>Infusion Date</th><th>Assigned To</th>'+
+          '</tr></thead><tbody id="sarfTbody"></tbody></table>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+
+  renderSarfTable(getFilteredSarfs());
+}
+
+function getVisibleSarfs(){
+  if(role.siteFilter) return localSarfs.filter(function(s){return s.site===role.siteFilter;});
+  return localSarfs;
+}
+
+function getFilteredSarfs(){
+  var base = getVisibleSarfs();
+  if(sarfTabActive==='pending') base=base.filter(function(s){return s.status==='Submitted'||s.status==='Under Review';});
+  if(sarfTabActive==='at-risk') base=base.filter(function(s){return s.priority==='at-risk';});
+  if(sarfTabActive==='approved') base=base.filter(function(s){return s.status==='Approved';});
+  var search=(document.getElementById('sarfSearch')||{}).value||'';
+  var sf=(document.getElementById('sarfStatusF')||{}).value||'All';
+  var sitef=(document.getElementById('sarfSiteF')||{}).value||'All';
+  if(sf!=='All') base=base.filter(function(s){return s.status===sf;});
+  if(sitef!=='All') base=base.filter(function(s){return s.site===sitef;});
+  if(search){var q=search.toLowerCase();base=base.filter(function(s){return (s.id+s.patient+s.site+s.pid).toLowerCase().indexOf(q)>=0;});}
+  return base;
+}
+
+function setSarfTab(el,tab){
+  document.querySelectorAll('#section-sarf .tab-item').forEach(function(t){t.classList.remove('active');});
+  el.classList.add('active');
+  sarfTabActive=tab;
+  renderSarfTable(getFilteredSarfs());
+}
+
+function setSarfTabById(tab){
+  sarfTabActive=tab;
+  var tabs=document.querySelectorAll('#section-sarf .tab-item');
+  tabs.forEach(function(t){t.classList.toggle('active',t.getAttribute('data-tab')===tab);});
+  renderSarfTable(getFilteredSarfs());
+}
+
+function applySarfFilters(){renderSarfTable(getFilteredSarfs());}
+
+var STATUS_BADGE={
+  'Approved':'badge-success','Under Review':'badge-info',
+  'Submitted':'badge-warning','Draft':'badge-neutral',
+  'Rejected':'badge-danger','On Hold':'badge-pink'
+};
+
+function renderSarfTable(sarfs){
+  var tbody=document.getElementById('sarfTbody');
+  if(!tbody) return;
+  if(!sarfs.length){
+    tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-light);">No SARFs match the current filters.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=sarfs.map(function(s){
+    var pmap={
+      'at-risk':'<span class="pdot at-risk"></span>At-Risk',
+      'urgent':'<span class="pdot urgent"></span>Urgent',
+      'normal':'<span class="pdot normal"></span>Normal'
+    };
+    return '<tr onclick="openPanel(\''+s.id+'\')">'+
+      '<td><strong>'+s.id+'</strong></td>'+
+      '<td><div style="font-weight:600;">'+s.patient+'</div><div style="font-size:11px;color:var(--text-light);">'+s.pid+'</div></td>'+
+      '<td style="color:var(--text-mid);">'+s.site+'</td>'+
+      '<td><span class="badge badge-neutral">'+s.study+'</span></td>'+
+      '<td><span class="badge '+(STATUS_BADGE[s.status]||'badge-neutral')+'">'+s.status+'</span></td>'+
+      '<td style="font-size:12px;">'+(pmap[s.priority]||s.priority)+'</td>'+
+      '<td style="font-size:12px;color:var(--text-mid);">'+s.infusion+'</td>'+
+      '<td style="font-size:12px;color:var(--text-mid);">'+s.assignedTo+'</td>'+
+      '</tr>';
+  }).join('');
+}
+
+// ─── SARF PANEL ──────────────────────────────────────────────
+function openPanel(sid){
+  curSarf=localSarfs.filter(function(s){return s.id===sid;})[0];
+  if(!curSarf) return;
+  var s=curSarf;
+  var canApprove=(role.id==='clinops'||role.id==='quality')&&(s.status==='Under Review'||s.status==='Submitted');
+  var canSubmit=(role.id==='site')&&s.status==='Draft';
+
+  document.getElementById('panelTitle').textContent=s.id;
+  document.getElementById('panelSubtitle').textContent=s.patient+' · '+s.study;
+
+  // Step progress (only for non-rejected)
+  var steps=['Draft','Submitted','Under Review','Approved'];
+  var si=steps.indexOf(s.status);
+  var stepHtml='';
+  if(s.status!=='Rejected'){
+    stepHtml='<div class="card" style="margin-bottom:16px;"><div class="card-title">Workflow Status</div>'+
+      '<div class="step-progress">'+
+      steps.map(function(st,i){
+        var cls=(i<si?'done':(i===si?'current':''));
+        return '<div class="step '+cls+'">'+
+          '<div class="step-dot '+cls+'">'+(i<si?'✓':i+1)+'</div>'+
+          '<div class="step-label">'+st+'</div>'+
+          '</div>';
+      }).join('')+
+      '</div></div>';
+  } else {
+    stepHtml='<div style="background:#FEE2E2;border:1px solid var(--danger);border-radius:8px;padding:12px 16px;margin-bottom:16px;color:#991B1B;font-size:13px;">✕ <strong>SARF Rejected</strong> — '+s.notes+'</div>';
+  }
+
+  // Audit trail
+  var trail=AUDIT[sid]||[];
+  var auditHtml=trail.length?trail.map(function(a){
+    return '<div class="audit-item">'+
+      '<div class="audit-dot"></div>'+
+      '<div><div class="audit-action">'+a.action+'</div>'+
+      '<div class="audit-meta">'+a.user+' · '+a.ts+(a.note?' · '+a.note:'')+
+      '</div></div></div>';
+  }).join(''):'<div style="color:var(--text-light);font-size:13px;">No audit entries yet.</div>';
+
+  document.getElementById('panelBody').innerHTML=
+    stepHtml+
+    '<div class="card" style="margin-bottom:16px;">'+
+      '<div class="card-title">SARF Details &nbsp;<span class="badge '+(STATUS_BADGE[s.status]||'badge-neutral')+'">'+s.status+'</span></div>'+
+      '<div class="detail-grid">'+
+        '<div class="detail-field"><label>Patient ID</label><div class="fval">'+s.pid+'</div></div>'+
+        '<div class="detail-field"><label>Patient</label><div class="fval">'+s.patient+'</div></div>'+
+        '<div class="detail-field"><label>Site</label><div class="fval">'+s.site+'</div></div>'+
+        '<div class="detail-field"><label>Study</label><div class="fval">'+s.study+'</div></div>'+
+        '<div class="detail-field"><label>Target Infusion Date</label><div class="fval" style="'+(s.priority==='at-risk'?'color:var(--danger);font-weight:700':'')+'">'+s.infusion+(s.priority==='at-risk'?' ⚠':'')+' </div></div>'+
+        '<div class="detail-field"><label>Date Submitted</label><div class="fval">'+s.submitted+'</div></div>'+
+        '<div class="detail-field"><label>Weight</label><div class="fval">'+s.weight+' kg</div></div>'+
+        '<div class="detail-field"><label>BSA</label><div class="fval">'+s.bsa+' m²</div></div>'+
+        '<div class="detail-field"><label>Priority</label><div class="fval">'+
+          (s.priority==='at-risk'?'⚠ At-Risk':s.priority==='urgent'?'Urgent':'Normal')+'</div></div>'+
+        '<div class="detail-field"><label>Assigned Reviewer</label><div class="fval">'+s.assignedTo+'</div></div>'+
+      '</div>'+
+      (s.notes?'<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">'+
+        '<div style="font-size:10.5px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;">Notes / Rationale</div>'+
+        '<div style="font-size:13px;color:var(--text-mid);">'+s.notes+'</div></div>':'')+
+    '</div>'+
+    '<div class="card">'+
+      '<div class="card-title">🔐 Audit Trail <span style="font-size:11px;color:var(--text-light);font-weight:400;margin-left:6px;">21 CFR Part 11 compliant</span></div>'+
+      '<div style="margin-top:10px;">'+auditHtml+'</div>'+
+    '</div>';
+
+  var footer=document.getElementById('panelFooter');
+  if(canApprove){
+    footer.innerHTML=
+      '<div class="btn btn-secondary btn-sm" onclick="openEsig(\'Request Changes\',\''+sid+'\')">Request Changes</div>'+
+      '<div class="btn btn-danger btn-sm" onclick="openEsig(\'Reject\',\''+sid+'\')">Reject</div>'+
+      '<div style="margin-left:auto;"></div>'+
+      '<div class="btn btn-success btn-sm" onclick="openEsig(\'Approve\',\''+sid+'\')">✓ Approve SARF</div>';
+  } else if(canSubmit){
+    footer.innerHTML=
+      '<div class="btn btn-secondary btn-sm" onclick="closePanel()">Close</div>'+
+      '<div style="margin-left:auto;"></div>'+
+      '<div class="btn btn-primary btn-sm" onclick="submitDraftFromPanel(\''+sid+'\')">Submit for Review →</div>';
+  } else {
+    footer.innerHTML='<div class="btn btn-secondary btn-sm" onclick="closePanel()">Close</div>';
+  }
+
+  document.getElementById('panelOverlay').classList.add('open');
+  document.getElementById('sarfPanel').classList.add('open');
+}
+
+function closePanel(){
+  document.getElementById('panelOverlay').classList.remove('open');
+  document.getElementById('sarfPanel').classList.remove('open');
+}
+
+function submitDraftFromPanel(sid){
+  var s=localSarfs.filter(function(x){return x.id===sid;})[0];
+  if(s){s.status='Submitted';s.submitted='Mar 26, 2025';s.assignedTo='Unassigned';}
+  closePanel();
+  showToast('✓ SARF submitted for review');
+  renderSarfSection();
+  renderSidebar();
+}
+
+// ─── E-SIGNATURE ─────────────────────────────────────────────
+function openEsig(action, sid){
+  esigActionType=action;
+  esigSarfId=sid;
+  var now=new Date();
+  var ts=now.getUTCFullYear()+'-'+pad(now.getUTCMonth()+1)+'-'+pad(now.getUTCDate())+
+    ' '+pad(now.getUTCHours())+':'+pad(now.getUTCMinutes());
+  document.getElementById('esigModalTitle').textContent='Electronic Signature — '+action+' SARF';
+  document.getElementById('esigSigner').textContent=role.user;
+  document.getElementById('esigAction').textContent=action;
+  document.getElementById('esigTargetId').textContent=sid;
+  document.getElementById('esigTimestamp').textContent=ts;
+  document.getElementById('esigReason').value='';
+  document.getElementById('esigPin').value='';
+  var btn=document.getElementById('esigConfirmBtn');
+  if(action==='Approve'){btn.className='btn btn-success btn-sm';btn.textContent='✓ Confirm & Approve';}
+  else if(action==='Reject'){btn.className='btn btn-danger btn-sm';btn.textContent='Confirm & Reject';}
+  else{btn.className='btn btn-navy btn-sm';btn.textContent='Confirm & Submit';}
+  document.getElementById('esigModal').classList.add('open');
+}
+function closeEsig(){document.getElementById('esigModal').classList.remove('open');}
+function confirmEsig(){
+  var reason=document.getElementById('esigReason').value.trim();
+  var pin=document.getElementById('esigPin').value.trim();
+  if(!reason){showToast('⚠ Please enter a reason.'); return;}
+  if(!pin){showToast('⚠ Please enter your PIN.'); return;}
+  var s=localSarfs.filter(function(x){return x.id===esigSarfId;})[0];
+  if(s){
+    if(esigActionType==='Approve') s.status='Approved';
+    else if(esigActionType==='Reject'){s.status='Rejected';s.notes=reason;}
+    else s.status='Under Review';
+  }
+  closeEsig(); closePanel();
+  renderSarfSection(); renderDashboard(); renderSidebar();
+  var msg=esigActionType==='Approve'?'✓ SARF '+esigSarfId+' approved — e-signature recorded':
+    esigActionType==='Reject'?'SARF '+esigSarfId+' rejected — record updated.':
+    'Changes requested for '+esigSarfId;
+  showToast(msg);
+}
+
+// ─── NEW SARF ────────────────────────────────────────────────
+function openNewSarf(){document.getElementById('newSarfModal').classList.add('open');}
+function closeNewSarf(){document.getElementById('newSarfModal').classList.remove('open');}
+function doSaveDraft(){
+  closeNewSarf();
+  showToast('Draft saved · SARF-2025-0049');
+}
+function doSubmitNewSarf(){
+  closeNewSarf();
+  showToast('✓ SARF-2025-0049 submitted for Clinical Ops review');
+}
+
+// ─── UTILS ───────────────────────────────────────────────────
+function dismissBanner(){document.getElementById('atRiskBanner').classList.add('hidden');}
+function pad(n){return n<10?'0'+n:n;}
+var _toastTimer=null;
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.style.display='block';
+  if(_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(function(){t.style.display='none';},3500);
+}
+
+// ─── DOSE ORDERS DATA ────────────────────────────────────────
+var DOSE_ORDERS = [
+  {id:'DO-2025-0088',sarfId:'SARF-2025-0043',patient:'Patient H. Granger',pid:'OAP-PT-043',
+   site:'MD Anderson',study:'OAP-NGT-001',product:'NGT-001 Radiopharmaceutical',
+   reqDose:12.4,calcDose:12.1,unit:'mCi',bsa:1.65,weight:62,
+   infusionDate:'Mar 28, 2025',infusionTime:'09:00',
+   status:'Batch Assigned',batchId:'OAP-B-0022',
+   submitted:'Mar 15, 2025',assignedTo:'Sarah Mitchell',
+   notes:'Standard order. MARK AI calculated dose confirmed by Planning.'},
+  {id:'DO-2025-0089',sarfId:'SARF-2025-0041',patient:'Patient F. Baggins',pid:'OAP-PT-041',
+   site:'UCSF Medical Center',study:'OAP-NGT-001',product:'NGT-001 Radiopharmaceutical',
+   reqDose:10.8,calcDose:10.5,unit:'mCi',bsa:1.74,weight:68,
+   infusionDate:'Apr 2, 2025',infusionTime:'08:30',
+   status:'Submitted',batchId:null,
+   submitted:'Mar 19, 2025',assignedTo:'Unassigned',
+   notes:'Linked SARF still under review. Dose order pre-submitted to secure batch slot.'},
+  {id:'DO-2025-0090',sarfId:'SARF-2025-0042',patient:'Patient A. Stark',pid:'OAP-PT-042',
+   site:'Mayo Clinic Rochester',study:'OAP-NGT-001',product:'NGT-001 Radiopharmaceutical',
+   reqDose:9.5,calcDose:null,unit:'mCi',bsa:1.58,weight:55,
+   infusionDate:'Apr 5, 2025',infusionTime:'10:00',
+   status:'Draft',batchId:null,
+   submitted:'—',assignedTo:'—',
+   notes:''},
+  {id:'DO-2025-0091',sarfId:'SARF-2025-0048',patient:'Patient B. Baggins',pid:'OAP-PT-048',
+   site:'Cleveland Clinic',study:'OAP-NGT-001',product:'NGT-001 Radiopharmaceutical',
+   reqDose:11.5,calcDose:11.3,unit:'mCi',bsa:1.82,weight:72,
+   infusionDate:'Mar 25, 2025',infusionTime:'09:30',
+   status:'Shipped',batchId:'OAP-B-0021',
+   submitted:'Mar 7, 2025',assignedTo:'Sarah Mitchell',
+   notes:'Shipment SHP-0089 in transit. ETA Mar 25 07:00 local.'},
+  {id:'DO-2025-0092',sarfId:'SARF-2025-0045',patient:'Patient D. Targaryen',pid:'OAP-PT-045',
+   site:'UCSF Medical Center',study:'OAP-NGT-001',product:'NGT-001 Radiopharmaceutical',
+   reqDose:10.2,calcDose:null,unit:'mCi',bsa:1.61,weight:57,
+   infusionDate:'Apr 10, 2025',infusionTime:'09:00',
+   status:'Submitted',batchId:null,
+   submitted:'Mar 23, 2025',assignedTo:'Unassigned',
+   notes:'SARF under review. Dose calculated pending Planning confirmation.'},
+  {id:'DO-2025-0087',sarfId:'SARF-2025-0040',patient:'Patient W. Wonka',pid:'OAP-PT-040',
+   site:'Johns Hopkins',study:'OAP-NGT-001',product:'NGT-001 Radiopharmaceutical',
+   reqDose:13.0,calcDose:12.8,unit:'mCi',bsa:1.90,weight:75,
+   infusionDate:'Mar 18, 2025',infusionTime:'08:00',
+   status:'Administered',batchId:'OAP-B-0020',
+   submitted:'Mar 3, 2025',assignedTo:'Sarah Mitchell',
+   notes:'Administration confirmed by site. Chain of custody complete.'}
+];
+
+var DO_AUDIT = {
+  'DO-2025-0088':[
+    {action:'Batch OAP-B-0022 assigned',user:'Ana Reyes (Planning)',ts:'Mar 16, 2025 · 11:30 UTC',note:'MARK AI allocation confirmed'},
+    {action:'Dose Order Approved (e-signature)',user:'Sarah Mitchell',ts:'Mar 15, 2025 · 16:02 UTC',note:'Calculated dose 12.1 mCi approved'},
+    {action:'Status: Submitted → Approved',user:'Sarah Mitchell',ts:'Mar 15, 2025 · 16:01 UTC',note:''},
+    {action:'Dose Order Submitted',user:'MD Anderson Site Coordinator',ts:'Mar 15, 2025 · 09:44 UTC',note:''},
+    {action:'Dose Order Created (Draft)',user:'MD Anderson Site Coordinator',ts:'Mar 14, 2025 · 17:10 UTC',note:''}
+  ],
+  'DO-2025-0089':[
+    {action:'Dose Order Submitted',user:'Dr. James Park (UCSF)',ts:'Mar 19, 2025 · 15:20 UTC',note:'Pre-submitted pending SARF approval'},
+    {action:'Dose Order Created (Draft)',user:'Dr. James Park (UCSF)',ts:'Mar 19, 2025 · 14:55 UTC',note:''}
+  ],
+  'DO-2025-0091':[
+    {action:'Shipment SHP-0089 dispatched',user:'Priya Nair (Logistics)',ts:'Mar 22, 2025 · 08:15 UTC',note:'FedEx overnight cold chain'},
+    {action:'Batch OAP-B-0021 assigned',user:'Ana Reyes (Planning)',ts:'Mar 9, 2025 · 10:00 UTC',note:''},
+    {action:'Dose Order Approved (e-signature)',user:'Sarah Mitchell',ts:'Mar 8, 2025 · 14:30 UTC',note:''},
+    {action:'Dose Order Submitted',user:'Cleveland Clinic Coordinator',ts:'Mar 7, 2025 · 09:11 UTC',note:''}
+  ],
+  'DO-2025-0087':[
+    {action:'Administration confirmed by site',user:'Dr. Park (Johns Hopkins)',ts:'Mar 18, 2025 · 11:42 UTC',note:'Chain of custody complete'},
+    {action:'Delivered to site',user:'Logistics System',ts:'Mar 18, 2025 · 07:15 UTC',note:'Cold chain intact — temp log verified'},
+    {action:'Shipment SHP-0087 dispatched',user:'Priya Nair (Logistics)',ts:'Mar 17, 2025 · 06:00 UTC',note:''},
+    {action:'Dose Order Approved',user:'Sarah Mitchell',ts:'Mar 4, 2025 · 10:20 UTC',note:''}
+  ]
+};
+
+var DO_STATUS_ORDER = ['Draft','Submitted','Approved','Batch Assigned','Shipped','Administered'];
+
+var DO_STATUS_BADGE = {
+  'Draft':'badge-neutral','Submitted':'badge-warning','Approved':'badge-info',
+  'Batch Assigned':'badge-pink','Shipped':'badge-success','Administered':'badge-success',
+  'Cancelled':'badge-danger'
+};
+
+// ─── DOSE ORDERS SECTION ─────────────────────────────────────
+function renderDoseOrdersSection(){
+  var sec = document.getElementById('section-dose-orders');
+  var canCreate = (role.id==='site');
+  var localDOs = DOSE_ORDERS; // could be role-filtered similarly to SARFs
+  var visible = role.siteFilter
+    ? localDOs.filter(function(d){return d.site===role.siteFilter;})
+    : localDOs;
+
+  var pendingApproval = visible.filter(function(d){return d.status==='Submitted';}).length;
+  var inFlight = visible.filter(function(d){return d.status==='Batch Assigned'||d.status==='Shipped';}).length;
+  var administered = visible.filter(function(d){return d.status==='Administered';}).length;
+
+  var siteOpts = ['All'].concat([...new Set(DOSE_ORDERS.map(function(d){return d.site;}))]);
+  var statusOpts = ['All','Draft','Submitted','Approved','Batch Assigned','Shipped','Administered'];
+
+  sec.innerHTML =
+    '<div class="page-header">'+
+      '<div><div class="page-title">Dose Orders</div>'+
+      '<div class="page-subtitle">'+visible.length+' records visible &nbsp;·&nbsp; '+role.label+' view</div></div>'+
+      '<div class="page-actions">'+
+        (canCreate?'<div class="btn btn-primary btn-sm" onclick="openNewDO()">+ New Dose Order</div>':'')+
+        '<div class="btn btn-secondary btn-sm">↓ Export</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="content-area" style="overflow-y:auto;flex:1;">'+
+
+      // KPI mini-row
+      '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;">'+
+        mkDOKpi('Pending Approval', pendingApproval.toString(), pendingApproval>0?'Requires review':'All clear', pendingApproval>0?'warn':'', pendingApproval>0?'warn-tile':'')+
+        mkDOKpi('Active (In-Flight)', inFlight.toString(), 'Batch assigned or shipped', '', 'primary-tile')+
+        mkDOKpi('Administered', administered.toString(), 'This cycle', 'up', 'good-tile')+
+        mkDOKpi('Total This Cycle', visible.length.toString(), 'All statuses', '', '')+
+      '</div>'+
+
+      '<div class="tabs">'+
+        '<div class="tab-item active" data-dotab="all" onclick="setDOTab(this,\'all\')">All &nbsp;<span class="tab-count" style="background:var(--border);">'+visible.length+'</span></div>'+
+        '<div class="tab-item" data-dotab="pending" onclick="setDOTab(this,\'pending\')">Pending Approval &nbsp;<span class="tab-count" style="background:#FEF3C7;color:#92400E;">'+pendingApproval+'</span></div>'+
+        '<div class="tab-item" data-dotab="inflight" onclick="setDOTab(this,\'inflight\')">In-Flight &nbsp;<span class="tab-count" style="background:#DBEAFE;color:#1E40AF;">'+inFlight+'</span></div>'+
+        '<div class="tab-item" data-dotab="administered" onclick="setDOTab(this,\'administered\')">Administered &nbsp;<span class="tab-count" style="background:#D1FAE5;color:#065F46;">'+administered+'</span></div>'+
+      '</div>'+
+
+      '<div class="filters-row">'+
+        '<input class="filter-search" id="doSearch" placeholder="🔍  Search patient, order ID, site…" oninput="applyDOFilters()" />'+
+        '<select class="filter-select" id="doStatusF" onchange="applyDOFilters()">'+
+          statusOpts.map(function(s){return '<option>'+s+'</option>';}).join('')+
+        '</select>'+
+        '<select class="filter-select" id="doSiteF" onchange="applyDOFilters()">'+
+          siteOpts.map(function(s){return '<option>'+s+'</option>';}).join('')+
+        '</select>'+
+      '</div>'+
+
+      '<div class="card" style="padding:0;overflow:hidden;">'+
+        '<div class="table-wrap">'+
+          '<table><thead><tr>'+
+            '<th>Order ID</th><th>Patient</th><th>Site</th>'+
+            '<th>Product</th><th>Dose</th><th>Infusion Date</th>'+
+            '<th>Status</th><th>Batch</th>'+
+          '</tr></thead><tbody id="doTbody"></tbody></table>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+
+  doTabActive = 'all';
+  renderDOTable(getDOFiltered());
+}
+
+function mkDOKpi(label, value, delta, dc, tc){
+  return '<div class="kpi-tile'+(tc?' '+tc:'')+'">'+
+    '<div class="kpi-label">'+label+'</div>'+
+    '<div class="kpi-value" style="font-size:24px;">'+value+'</div>'+
+    '<div class="kpi-delta'+(dc?' '+dc:'')+'">'+delta+'</div>'+
+    '</div>';
+}
+
+var doTabActive = 'all';
+
+function setDOTab(el, tab){
+  document.querySelectorAll('#section-dose-orders .tab-item').forEach(function(t){t.classList.remove('active');});
+  el.classList.add('active');
+  doTabActive = tab;
+  renderDOTable(getDOFiltered());
+}
+
+function getDOVisible(){
+  return role.siteFilter
+    ? DOSE_ORDERS.filter(function(d){return d.site===role.siteFilter;})
+    : DOSE_ORDERS;
+}
+
+function getDOFiltered(){
+  var base = getDOVisible();
+  if(doTabActive==='pending') base=base.filter(function(d){return d.status==='Submitted';});
+  if(doTabActive==='inflight') base=base.filter(function(d){return d.status==='Batch Assigned'||d.status==='Shipped';});
+  if(doTabActive==='administered') base=base.filter(function(d){return d.status==='Administered';});
+  var search=(document.getElementById('doSearch')||{}).value||'';
+  var sf=(document.getElementById('doStatusF')||{}).value||'All';
+  var sitef=(document.getElementById('doSiteF')||{}).value||'All';
+  if(sf!=='All') base=base.filter(function(d){return d.status===sf;});
+  if(sitef!=='All') base=base.filter(function(d){return d.site===sitef;});
+  if(search){var q=search.toLowerCase();base=base.filter(function(d){return (d.id+d.patient+d.site+d.pid).toLowerCase().indexOf(q)>=0;});}
+  return base;
+}
+
+function applyDOFilters(){renderDOTable(getDOFiltered());}
+
+function renderDOTable(orders){
+  var tbody=document.getElementById('doTbody');
+  if(!tbody) return;
+  if(!orders.length){
+    tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-light);">No dose orders match the current filters.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=orders.map(function(d){
+    var doseStr=d.calcDose
+      ? d.reqDose+' mCi <span style="color:var(--text-light);font-size:11px;">(calc: '+d.calcDose+' mCi)</span>'
+      : d.reqDose+' mCi <span style="color:var(--text-light);font-size:11px;">(pending)</span>';
+    return '<tr onclick="openDOPanel(\''+d.id+'\')">'+
+      '<td><strong>'+d.id+'</strong></td>'+
+      '<td><div style="font-weight:600;">'+d.patient+'</div>'+
+        '<div style="font-size:11px;color:var(--text-light);">'+d.pid+'</div></td>'+
+      '<td style="color:var(--text-mid);">'+d.site+'</td>'+
+      '<td style="font-size:12px;color:var(--text-mid);">'+d.product+'</td>'+
+      '<td style="font-size:12px;">'+doseStr+'</td>'+
+      '<td style="font-size:12px;color:var(--text-mid);">'+d.infusionDate+'<br><span style="color:var(--text-light);">'+d.infusionTime+'</span></td>'+
+      '<td><span class="badge '+(DO_STATUS_BADGE[d.status]||'badge-neutral')+'">'+d.status+'</span></td>'+
+      '<td style="font-size:12px;color:var(--text-mid);">'+(d.batchId||'—')+'</td>'+
+      '</tr>';
+  }).join('');
+}
+
+// ─── DO PANEL ────────────────────────────────────────────────
+function openDOPanel(doId){
+  var d = DOSE_ORDERS.filter(function(x){return x.id===doId;})[0];
+  if(!d) return;
+
+  var canApprove = (role.id==='clinops'||role.id==='quality')&&d.status==='Submitted';
+  var canSubmit  = role.id==='site' && d.status==='Draft';
+
+  document.getElementById('doPanelTitle').textContent = d.id;
+  document.getElementById('doPanelSubtitle').textContent = d.patient+' · '+d.study;
+
+  // Step progress
+  var si = DO_STATUS_ORDER.indexOf(d.status);
+  var stepHtml = '';
+  if(d.status!=='Cancelled'){
+    stepHtml = '<div class="card" style="margin-bottom:16px;"><div class="card-title">Order Status</div>'+
+      '<div class="step-progress" style="margin-top:16px;">'+
+      DO_STATUS_ORDER.map(function(st,i){
+        var cls = i<si?'done':(i===si?'current':'');
+        return '<div class="step '+cls+'">'+
+          '<div class="step-dot '+cls+'">'+(i<si?'✓':i+1)+'</div>'+
+          '<div class="step-label">'+st+'</div></div>';
+      }).join('')+
+      '</div></div>';
+  }
+
+  // Dose variance
+  var varianceHtml = '';
+  if(d.calcDose){
+    var diff = (d.reqDose - d.calcDose).toFixed(1);
+    var pct  = ((Math.abs(diff)/d.reqDose)*100).toFixed(1);
+    varianceHtml = '<div style="background:var(--lavender);border-radius:6px;padding:10px 14px;margin-bottom:16px;font-size:12.5px;color:var(--text-mid);">'+
+      '🧮 <strong>MARK AI Dose Calculation</strong>&nbsp;&nbsp;'+
+      'Requested: <strong>'+d.reqDose+' mCi</strong> &nbsp;·&nbsp; '+
+      'Calculated: <strong>'+d.calcDose+' mCi</strong> &nbsp;·&nbsp; '+
+      'Variance: <strong style="color:'+(parseFloat(pct)>5?'var(--warning)':'var(--success)')+'">'+diff+' mCi ('+pct+'%)</strong>'+
+      '</div>';
+  }
+
+  // Audit
+  var trail = DO_AUDIT[doId]||[];
+  var auditHtml = trail.length ? trail.map(function(a){
+    return '<div class="audit-item">'+
+      '<div class="audit-dot"></div>'+
+      '<div><div class="audit-action">'+a.action+'</div>'+
+      '<div class="audit-meta">'+a.user+' · '+a.ts+(a.note?' · '+a.note:'')+
+      '</div></div></div>';
+  }).join('') : '<div style="color:var(--text-light);font-size:13px;">No audit entries yet.</div>';
+
+  document.getElementById('doPanelBody').innerHTML =
+    stepHtml+
+    varianceHtml+
+    '<div class="card" style="margin-bottom:16px;">'+
+      '<div class="card-title">Dose Order Details &nbsp;<span class="badge '+(DO_STATUS_BADGE[d.status]||'badge-neutral')+'">'+d.status+'</span></div>'+
+      '<div class="detail-grid">'+
+        '<div class="detail-field"><label>Patient ID</label><div class="fval">'+d.pid+'</div></div>'+
+        '<div class="detail-field"><label>Patient</label><div class="fval">'+d.patient+'</div></div>'+
+        '<div class="detail-field"><label>Site</label><div class="fval">'+d.site+'</div></div>'+
+        '<div class="detail-field"><label>Study</label><div class="fval">'+d.study+'</div></div>'+
+        '<div class="detail-field"><label>Product</label><div class="fval">'+d.product+'</div></div>'+
+        '<div class="detail-field"><label>Linked SARF</label><div class="fval" style="color:var(--pink);cursor:pointer;" onclick="closeDOPanel();openPanel(\''+d.sarfId+'\')">'+d.sarfId+' ↗</div></div>'+
+        '<div class="detail-field"><label>Requested Dose</label><div class="fval">'+d.reqDose+' '+d.unit+'</div></div>'+
+        '<div class="detail-field"><label>Calculated Dose (MARK AI)</label><div class="fval">'+(d.calcDose?d.calcDose+' '+d.unit:'Pending Planning')+'</div></div>'+
+        '<div class="detail-field"><label>Patient Weight</label><div class="fval">'+d.weight+' kg</div></div>'+
+        '<div class="detail-field"><label>BSA</label><div class="fval">'+d.bsa+' m²</div></div>'+
+        '<div class="detail-field"><label>Infusion Date</label><div class="fval">'+d.infusionDate+'</div></div>'+
+        '<div class="detail-field"><label>Infusion Time</label><div class="fval">'+d.infusionTime+' local</div></div>'+
+        '<div class="detail-field"><label>Assigned Batch</label><div class="fval">'+(d.batchId||'Not yet assigned')+'</div></div>'+
+        '<div class="detail-field"><label>Assigned Reviewer</label><div class="fval">'+d.assignedTo+'</div></div>'+
+      '</div>'+
+      (d.notes?'<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">'+
+        '<div style="font-size:10.5px;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;">Notes</div>'+
+        '<div style="font-size:13px;color:var(--text-mid);">'+d.notes+'</div></div>':'')+
+    '</div>'+
+    '<div class="card">'+
+      '<div class="card-title">🔐 Audit Trail <span style="font-size:11px;color:var(--text-light);font-weight:400;margin-left:6px;">21 CFR Part 11 compliant</span></div>'+
+      '<div style="margin-top:10px;">'+auditHtml+'</div>'+
+    '</div>';
+
+  var footer = document.getElementById('doPanelFooter');
+  if(canApprove){
+    footer.innerHTML =
+      '<div class="btn btn-danger btn-sm" onclick="openDOEsig(\'Reject\',\''+doId+'\')">Reject</div>'+
+      '<div style="margin-left:auto;"></div>'+
+      '<div class="btn btn-success btn-sm" onclick="openDOEsig(\'Approve\',\''+doId+'\')">✓ Approve Dose Order</div>';
+  } else if(canSubmit){
+    footer.innerHTML =
+      '<div class="btn btn-secondary btn-sm" onclick="closeDOPanel()">Close</div>'+
+      '<div style="margin-left:auto;"></div>'+
+      '<div class="btn btn-primary btn-sm" onclick="submitDODraft(\''+doId+'\')">Submit for Approval →</div>';
+  } else {
+    footer.innerHTML = '<div class="btn btn-secondary btn-sm" onclick="closeDOPanel()">Close</div>';
+  }
+
+  document.getElementById('doPanelOverlay').classList.add('open');
+  document.getElementById('doPanel').classList.add('open');
+}
+
+function closeDOPanel(){
+  document.getElementById('doPanelOverlay').classList.remove('open');
+  document.getElementById('doPanel').classList.remove('open');
+}
+
+function submitDODraft(doId){
+  var d=DOSE_ORDERS.filter(function(x){return x.id===doId;})[0];
+  if(d){d.status='Submitted';d.submitted='Mar 26, 2025';d.assignedTo='Unassigned';}
+  closeDOPanel();
+  showToast('✓ Dose order submitted for approval');
+  renderDoseOrdersSection();
+}
+
+// ─── DO E-SIGNATURE ──────────────────────────────────────────
+var doEsigAction = null;
+var doEsigId = null;
+
+function openDOEsig(action, doId){
+  doEsigAction = action;
+  doEsigId = doId;
+  var now = new Date();
+  var ts = now.getUTCFullYear()+'-'+pad(now.getUTCMonth()+1)+'-'+pad(now.getUTCDate())+
+    ' '+pad(now.getUTCHours())+':'+pad(now.getUTCMinutes());
+  document.getElementById('esigModalTitle').textContent = 'Electronic Signature — '+action+' Dose Order';
+  document.getElementById('esigSigner').textContent = role.user;
+  document.getElementById('esigAction').textContent = action;
+  document.getElementById('esigTargetId').textContent = doId;
+  document.getElementById('esigTimestamp').textContent = ts;
+  document.getElementById('esigReason').value = '';
+  document.getElementById('esigPin').value = '';
+  var btn = document.getElementById('esigConfirmBtn');
+  if(action==='Approve'){btn.className='btn btn-success btn-sm';btn.textContent='✓ Confirm & Approve';}
+  else{btn.className='btn btn-danger btn-sm';btn.textContent='Confirm & Reject';}
+  // Override confirmEsig to handle DO context
+  btn.setAttribute('onclick','confirmDOEsig()');
+  document.getElementById('esigModal').classList.add('open');
+}
+
+function confirmDOEsig(){
+  var reason = document.getElementById('esigReason').value.trim();
+  var pin    = document.getElementById('esigPin').value.trim();
+  if(!reason){showToast('⚠ Please enter a reason.'); return;}
+  if(!pin){showToast('⚠ Please enter your PIN.'); return;}
+  var d = DOSE_ORDERS.filter(function(x){return x.id===doEsigId;})[0];
+  if(d){
+    if(doEsigAction==='Approve') d.status='Approved';
+    else d.status='Cancelled';
+  }
+  // Reset confirm button back to SARF handler
+  document.getElementById('esigConfirmBtn').setAttribute('onclick','confirmEsig()');
+  closeEsig(); closeDOPanel();
+  renderDoseOrdersSection();
+  var msg = doEsigAction==='Approve'
+    ? '✓ '+doEsigId+' approved — e-signature recorded'
+    : doEsigId+' rejected — record updated.';
+  showToast(msg);
+}
+
+// ─── NEW DOSE ORDER ──────────────────────────────────────────
+function openNewDO(){
+  // Populate approved SARFs dropdown
+  var sel = document.getElementById('newDOSarfSelect');
+  if(!sel) return;
+  var approved = localSarfs.filter(function(s){return s.status==='Approved';});
+  sel.innerHTML = '<option value="">— Select Approved SARF —</option>'+
+    approved.map(function(s){
+      return '<option value="'+s.id+'">'+s.id+' · '+s.patient+' ('+s.site+')</option>';
+    }).join('');
+  document.getElementById('newDOPatientPreview').style.display='none';
+  document.getElementById('newDOModal').classList.add('open');
+}
+
+function onDOSarfChange(){
+  var sid = document.getElementById('newDOSarfSelect').value;
+  var preview = document.getElementById('newDOPatientPreview');
+  if(!sid){preview.style.display='none'; return;}
+  var s = localSarfs.filter(function(x){return x.id===sid;})[0];
+  if(!s){preview.style.display='none'; return;}
+  preview.style.display='block';
+  preview.innerHTML = '👤 <strong>'+s.patient+'</strong> &nbsp;·&nbsp; '+s.site+
+    ' &nbsp;·&nbsp; Weight: '+s.weight+' kg &nbsp;·&nbsp; BSA: '+s.bsa+' m² &nbsp;·&nbsp; '+
+    'Target infusion: '+s.infusion;
+  // Pre-fill dose estimate based on BSA
+  var estDose = Math.round(s.bsa * 6.5 * 10)/10;
+  var doseEl = document.getElementById('newDODose');
+  if(doseEl) doseEl.value = estDose;
+}
+
+function closeNewDO(){
+  document.getElementById('newDOModal').classList.remove('open');
+}
+function doSaveDODraft(){
+  closeNewDO();
+  showToast('Draft saved · DO-2025-0093');
+}
+function doSubmitDO(){
+  closeNewDO();
+  showToast('✓ DO-2025-0093 submitted for Clinical Ops approval');
+}
+
+// ─── BOOT ────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
